@@ -79,7 +79,7 @@ class Dashboard extends Component {
 
 
   getToken = async()=>{
-      let token = await this.props.web3.eth.personal.sign(ORACLE.endpoint,this.props.user)
+      let token = await this.props.web3.eth.personal.sign(this.state.currentEndpoint,this.props.user)
       console.log("TOKEN : ",token)
       this.setState({token})
   }
