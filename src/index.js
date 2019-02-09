@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {render} from 'react-dom';
 // import Accounts from './Accounts';
-import Dashboard from "layouts/Dashboard/Dashboard.jsx";
+import Dashboard from "./layouts/Dashboard/Dashboard.jsx";
 
 
 import "bootstrap/dist/css/bootstrap.min.css";

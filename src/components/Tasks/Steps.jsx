@@ -21,12 +21,12 @@ export class SubscribeItems  extends Component {
     constructor(props) {
         super(props);
         this.props.web3.eth.subscribe("newBlockHeaders",this.updateBlock)
-        this.props.subscriber.zapBondage.listenBound({provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:ORACLE.endpoint},this.bondedChange)
+        this.props.subscriber.zapBondage.listenBound({provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint},this.bondedChange)
         this.props.subscriber.zapArbiter.listenDataPurchase({
-            provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:ORACLE.endpoint
+            provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint
         },this.subscribeChange)
         this.props.subscriber.zapArbiter.listenSubscriptionEnd({
-            provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:ORACLE.endpoint
+            provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint
         },this.subscribeChange)
         this.inputChange=  this.inputChange.bind(this)
         this.endBlock=this.props.subscription.preBlockEnd
@@ -55,13 +55,13 @@ export class SubscribeItems  extends Component {
     }
 
     updateBondInfo = async()=>{
-        let bonded = await this.props.subscriber.getBoundDots({provider:ORACLE.address,endpoint:ORACLE.endpoint})
-        let escrow = await this.props.subscriber.getNumEscrow({provider:ORACLE.address,endpoint:this.props.web3.utils.toHex(ORACLE.endpoint)})
+        let bonded = await this.props.subscriber.getBoundDots({provider:ORACLE.address,endpoint:this.props.endpoint})
+        let escrow = await this.props.subscriber.getNumEscrow({provider:ORACLE.address,endpoint:this.props.web3.utils.toHex(this.props.endpoint)})
         this.setState({bonded,escrow})
     }
 
     updateSubInfo = async()=>{
-        let sub = await this.props.subscriber.zapArbiter.getSubscription({provider:ORACLE.address,endpoint:ORACLE.endpoint,subscriber:this.props.subscriber.subscriberOwner})
+        let sub = await this.props.subscriber.zapArbiter.getSubscription({provider:ORACLE.address,endpoint:this.props.endpoint,subscriber:this.props.subscriber.subscriberOwner})
         console.log(sub)
         let remainBlocks = this.state.currentBlock- sub.preBlockEnd
         this.props.updateBlockEnd(remainBlocks)
@@ -79,7 +79,7 @@ export class SubscribeItems  extends Component {
     }
     bondDots = async()=>{
         if(this.state.bondAmount>0){
-            let tx = await this.props.subscriber.bond({provider:ORACLE.address,endpoint:ORACLE.endpoint,dots:this.state.bondAmount})
+            let tx = await this.props.subscriber.bond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
             return this.setState((prev,prop)=>{
                 return {...prev,bondAmount:0}
             })
@@ -88,7 +88,7 @@ export class SubscribeItems  extends Component {
 
     unBond = async()=>{
         if(this.state.bondAmount>0){
-            let tx = await this.props.subscriber.unBond({provider:ORACLE.address,endpoint:ORACLE.endpoint,dots:this.state.bondAmount})
+            let tx = await this.props.subscriber.unBond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
             return this.setState((prev,prop)=>{
                 return {...prev,bondAmount:0}
             })
@@ -98,10 +98,10 @@ export class SubscribeItems  extends Component {
 
     subscribeBlock=async()=>{
         if(this.state.subscribeAmount>0){
-            // let dots = await this.props.subscriber.zapArbiter.contract.methods.endSubscriptionSubscriber(ORACLE.address,this.props.web3.utils.toHex(ORACLE.endpoint)).send({from:this.props.subscriber.subscriberOwner,gas:6000000})
+            // let dots = await this.props.subscriber.zapArbiter.contract.methods.endSubscriptionSubscriber(ORACLE.address,this.props.web3.utils.toHex(this.props.endpoint)).send({from:this.props.subscriber.subscriberOwner,gas:6000000})
             // console.log("DOTS ",dots)
-            console.log({provider:ORACLE.address,endpoint:ORACLE.endpoint,endpointParams:[],dots:this.state.subscribeAmount},this.props.subscriber.subscriberOwner)
-            let tx=await this.props.subscriber.subscribe({provider:ORACLE.address,endpoint:ORACLE.endpoint,endpointParams:[],dots:this.state.subscribeAmount})
+            console.log({provider:ORACLE.address,endpoint:this.props.endpoint,endpointParams:[],dots:this.state.subscribeAmount},this.props.subscriber.subscriberOwner)
+            let tx=await this.props.subscriber.subscribe({provider:ORACLE.address,endpoint:this.props.endpoint,endpointParams:[],dots:this.state.subscribeAmount})
             return this.setState((prev,prop)=>{
                 return {...prev,subscribeAmount:0}
             })
@@ -110,9 +110,9 @@ export class SubscribeItems  extends Component {
 
     unSubscribe=async()=>{
         if(this.state.escrow>0){
-            // let dots = await this.props.subscriber.zapArbiter.contract.methods.endSubscriptionSubscriber(ORACLE.address,this.props.web3.utils.toHex(ORACLE.endpoint)).send({from:this.props.subscriber.subscriberOwner,gas:6000000})
+            // let dots = await this.props.subscriber.zapArbiter.contract.methods.endSubscriptionSubscriber(ORACLE.address,this.props.web3.utils.toHex(this.props.endpoint)).send({from:this.props.subscriber.subscriberOwner,gas:6000000})
             // console.log("DOTS ",dots)
-            let tx=await this.props.subscriber.zapArbiter.endSubscriptionSubscriber({provider:ORACLE.address,endpoint:ORACLE.endpoint,endpointParams:[],from:this.props.subscriber.subscriberOwner})
+            let tx=await this.props.subscriber.zapArbiter.endSubscriptionSubscriber({provider:ORACLE.address,endpoint:this.props.endpoint,endpointParams:[],from:this.props.subscriber.subscriberOwner})
             return this.setState((prev,prop)=>{
                 return {...prev,subscribeAmount:0}
             })

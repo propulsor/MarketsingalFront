@@ -25,7 +25,8 @@ export default class Signal extends React.Component{
         txid:'',
         eCurve:'',
         eBZap:0,
-        eIssued:0
+        eIssued:0,
+        currentEndpoint:''
     };
 
     constructor(props) {
@@ -94,6 +95,7 @@ export default class Signal extends React.Component{
 
         let subscription = await this.state.subscriber.zapArbiter.getSubscription({provider:ORACLE.address,subscriber:user,endpoint:this.props.endpoint})
         let currentBlock = await this.web3.eth.getBlockNumber()
+        let currentEndpoint= this.props.endpoint
         let status
         if(subscription.preBlockEnd<currentBlock){
             if(boundDots==0){
@@ -112,7 +114,7 @@ export default class Signal extends React.Component{
             status="done"
         }
         return this.setState((prev,props)=>{
-          return {...prev,allowance,boundDots,subscription,status,eBZap,eCurve,eIssued}
+          return {...prev,allowance,boundDots,subscription,status,eBZap,eCurve,eIssued,currentEndpoint}
         })
 
     }
@@ -132,7 +134,7 @@ export default class Signal extends React.Component{
             )
         }
         else{
-            if(!this.state.allowance){
+            if(!this.state.allowance || this.props.endpoint !=this.state.currentEndpoint){
                 this.getStatus()
                 return(
                         <Grid>
@@ -186,6 +188,7 @@ export default class Signal extends React.Component{
                          boundDots={this.state.boundDots}
                          subscription={this.state.subscription}
                          subscriber={this.state.subscriber}
+                         endpoint={this.state.currentEndpoint}
                          web3={this.web3}
                          updateBlockEnd={this.updateBlockEnd}/>
                          </Segment>
