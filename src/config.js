@@ -3,5 +3,5 @@ export const ORACLE= {
     // endpoint: "test"
     address:"0xfdd1F743679ccA49864137eB0dc5787b2A19Ac43",
     endpoint:"BinanceSignal",
-    URL : "http://localhost:8001"
+    URL : "https://marketsignal.info/ws"
 }
