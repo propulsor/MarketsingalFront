@@ -184,9 +184,7 @@ export default class Signal extends React.Component{
                          </Header>
                        </Divider>
                        <Segment>
-                        <SubscribeSteps allowance={this.state.allowance}
-                         boundDots={this.state.boundDots}
-                         subscription={this.state.subscription}
+                        <SubscribeSteps
                          subscriber={this.state.subscriber}
                          endpoint={this.state.currentEndpoint}
                          web3={this.web3}

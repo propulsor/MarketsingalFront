@@ -1,5 +1,5 @@
 import React,{Component} from 'react'
-import {Message, Segment,Table,Label} from 'semantic-ui-react'
+import {Message, Segment,Table,Label,Button,Dimmer,Loader} from 'semantic-ui-react'
 import {ORACLE} from "../../config"
 import {ZapSubscriber} from  "@zapjs/subscriber"
 const io= require("socket.io-client");
@@ -14,11 +14,14 @@ export class SignalData  extends Component {
         data:null,
         auth:false,
         newData:false,
-        dataSet:[]
+        dataSet:[],
+        token:null
 
     };
     constructor(props) {
         super(props);
+        this.state.token=this.props.token
+        this.retryClick = this.retryClick.bind(this)
 
     }
     getUser= async()=>{
@@ -43,17 +46,21 @@ export class SignalData  extends Component {
         this.setState({socket})
     }
 
-
+    componentDidMount(){
+        this.setState({token:this.props.token})
+    }
     authenticate = ()=>{
         // let token="test"
-        this.state.socket.emit("authentication",{token:this.state.token,nonce:1,address:this.props.user})
+        this.state.socket.emit("authentication",{token:this.props.token,nonce:1,address:this.props.user, endpoint:this.props.endpoint})
     }
     error = (err)=>{
         console.log("Error connecting ", err)
         this.state.socket.close()
     }
     disconnectWs=()=>{
+        console.log("closed ws")
         this.state.socket.close()
+        this.setState({auth:false})
     }
 
     streamData = (data)=>{
@@ -72,13 +79,24 @@ export class SignalData  extends Component {
         this.setState({dataSet})
     }
 
+    retryClick=(e)=>{
+        this.state.socket.open()
+    }
+
 
     successAuth=(res)=>{
+        console.log("success Auth")
         this.setState({auth:true})
     }
 
     failAuth=()=>{
-        this.setState({auth:false,data:null})
+        console.log("fail auth")
+        try{
+            this.state.socket.close()
+        }catch(e){
+
+        }
+        this.setState({auth:false})
     }
 
     inputChange(event){
@@ -86,49 +104,27 @@ export class SignalData  extends Component {
     }
 
     render(){
-        if(this.props.token && this.props.blocks>0 ){
-            this.startSocket()
-            return(
-                    <Segment padded>
-                    <Message>
-                        <Message.Header>Socket Not connected</Message.Header>
-                            <p>
-                                Subscribe and connect
-                            </p>
-                        </Message>
-                    </Segment>
-            )
+        let status,button
+        if(!this.props.token){
+            status="Not connected"
+            button = (<Button  content="Connect" onClick={this.props.getToken} label={status}/>)
         }
         else{
-            let error = this.state.error
-            let auth = this.state.auth
-            if(!auth){
-                return(
-                        <Segment>
-                        <Message>
-                            <Message.Header>Not Authenticated</Message.Header>
-                                <p>
-                                    Subscribe and connect
-                                </p>
-                            </Message>
-                        </Segment>
-                )
+            if(!this.state.socket){
+                this.startSocket()
+                status ="Not Connected"
+                button=(<Dimmer><Loader> Connecting </Loader></Dimmer>)
             }
-            else if(error){
-                return(
-                        <Segment fluid raised>
-                        <Message>
-                            <Message.Header>Error Connecting To Data</Message.Header>
-                                <p>
-                                {error}
-                                </p>
-                            </Message>
-                        </Segment>
-                )
+            else{
+                if(!this.state.auth){
+                    status="Unauthorized"
+                    button = (<Button content="Retry" onClick={this.retryClick} label={status}/>)
+                }
             }
+        }
             return (
                 <Segment>
-                <Label as='a' ribbon content={this.state.auth ? "AUTHENTICATED": "DISCONNECTED" } color={this.state.socket.connected ? "green": 'orange'}/>
+                {button}
                 <Table compact fixed padded class="responsive" attached>
                 <Table.Header>
                   <Table.Row>
@@ -143,7 +139,8 @@ export class SignalData  extends Component {
                 </Table>
                 </Segment>
           );
-        }
+
+
     }
 }
 

@@ -26,10 +26,11 @@ class Dashboard extends Component {
       provider:null,
       pubkey:null,
       title:null,
-      owner:null,
+      user:null,
       endpoints:null,
       currentEndpoint:null,
-      remainBlocks:0
+      remainBlocks:0,
+      token:null
     };
 
 
@@ -79,7 +80,8 @@ class Dashboard extends Component {
 
 
   getToken = async()=>{
-      let token = await this.props.web3.eth.personal.sign(this.state.currentEndpoint,this.props.user)
+
+      let token = await this.props.web3.eth.personal.sign(this.state.currentEndpoint,this.state.user)
       console.log("TOKEN : ",token)
       this.setState({token})
   }
@@ -87,19 +89,20 @@ class Dashboard extends Component {
     let title;
     let curve
     let pubkey = {}
-    const owner = ORACLE.address
-    const provider = new ZapProvider(owner,{
+    let addresses = await this.props.web3.eth.getAccounts()
+    let user = addresses[0]
+    const provider = new ZapProvider(ORACLE.address,{
       networkId:await this.props.web3.eth.net.getId(),
       networkProvider: this.props.web3
     })
 
     title = await provider.getTitle()
     pubkey = await provider.getPubkey()
-    let endpoints = await provider.zapRegistry.getProviderEndpoints(owner)
+    let endpoints = await provider.zapRegistry.getProviderEndpoints(ORACLE.address)
     let currentEndpoint = endpoints[0]
     console.log("ENdpoints :" ,endpoints)
     return this.setState((prev,props)=>{
-    return {...prev,provider,pubkey,title,owner,endpoints,currentEndpoint}
+    return {...prev,provider,pubkey,title,endpoints,currentEndpoint,user}
     })
 
   }
@@ -141,10 +144,10 @@ class Dashboard extends Component {
                 {/*<NotificationSystem ref="notificationSystem" style={style} />*/}
                 <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>
                 <div id="main-panel" className="main-panel" ref="mainPanel">
-                  <Header title={this.state.title} pubkey={this.state.pubkey} address={this.state.owner}  />
+                  <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
                  <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd}/>
                  <Divider hidden section />
-                 <SignalData web3={this.props.web3} user={this.state.owner} token={this.state.token} blocks={this.remainBlocks}/>
+                 <SignalData web3={this.props.web3} user={this.state.user} token={this.state.token} endpoint={this.state.currentEndpoint} blocks={this.remainBlocks} getToken={this.getToken}/>
                 </div>
               </div>
             );

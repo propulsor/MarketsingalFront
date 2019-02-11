@@ -1,10 +1,13 @@
 import React,{Component} from 'react'
-import { Item, Button, Popup, Input, Statistic,Segment, Grid} from 'semantic-ui-react'
+import { Item, Button, Popup, Input, Statistic,Segment, Grid,Message} from 'semantic-ui-react'
 import {ORACLE} from "../../config"
 import {ZapSubscriber} from  "@zapjs/subscriber"
-
+import {ZapBondage} from "@zapjs/bondage"
+import {ZapArbiter} from "@zapjs/arbiter"
+import * as Web3 from "web3"
+const INFURA = "wss://mainnet.infura.io/ws/v3/f55d77b1e66e4bd4adf7c89a2f77c03e"
 export class SubscribeItems  extends Component {
-
+    _isMounted=false
     state = {
         subscriber: ZapSubscriber,
         txid:'',
@@ -16,27 +19,52 @@ export class SubscribeItems  extends Component {
         bonded:0,
         endBlock:0,
         escrow:0,
-        lastBlockEnd:0
+        lastBlockEnd:0,
+        web3Sub:Web3,
+        ethSubId:null,
+        error:null
     };
     constructor(props) {
         super(props);
-        this.props.web3.eth.subscribe("newBlockHeaders",this.updateBlock)
-        this.props.subscriber.zapBondage.listenBound({provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint},this.bondedChange)
-        this.props.subscriber.zapArbiter.listenDataPurchase({
-            provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint
-        },this.subscribeChange)
-        this.props.subscriber.zapArbiter.listenSubscriptionEnd({
-            provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint
-        },this.subscribeChange)
-        this.inputChange=  this.inputChange.bind(this)
-        this.endBlock=this.props.subscription.preBlockEnd
-        this.updateBondInfo()
-        this.updateSubInfo()
+        this.web3Sub = new Web3(new Web3.providers.WebsocketProvider(INFURA))
+        this.resetError = this.resetError.bind(this)
+
 
     }
 
+    componentDidMount(){
+        this._isMounted=true
+        this.ethSubId = this.web3Sub.eth.subscribe("newBlockHeaders",this.updateBlock)
+        this.web3Sub.eth.net.getId()
+        .then((id)=>{
+            console.log("ID ", id)
+            const zapBondage = new ZapBondage({networkId:id,networkProvider:this.web3Sub})
+            const zapArbiter = new ZapArbiter({networkId:id,networkProvider:this.web3Sub})
+            zapBondage.listenBound({provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint},this.bondedChange)
+            zapArbiter.listenDataPurchase({
+                provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint
+            },this.subscribeChange)
+            zapArbiter.listenSubscriptionEnd({
+                provider:ORACLE.address,subscriber:this.props.subscriber.subscriberOwner,endpoint:this.props.endpoint
+            },this.subscribeChange)
+            this.inputChange=  this.inputChange.bind(this)
+            this.updateBondInfo()
+            this.updateSubInfo()
+
+        })
+
+    }
+    componentWillMount(){
+        this._isMounted=false
+    }
+    componentWillUnmount(){
+        if(this.ethSubId){
+            this.ethSubId.unsubscribe()
+        }
+    }
+
     updateBlock=(err,data)=>{
-        if(data){
+        if(data && this._isMounted){
             let currentBlock=data.number
             return this.setState((prev,prop)=>{
                 return {...prev,currentBlock}
@@ -57,7 +85,10 @@ export class SubscribeItems  extends Component {
     updateBondInfo = async()=>{
         let bonded = await this.props.subscriber.getBoundDots({provider:ORACLE.address,endpoint:this.props.endpoint})
         let escrow = await this.props.subscriber.getNumEscrow({provider:ORACLE.address,endpoint:this.props.web3.utils.toHex(this.props.endpoint)})
-        this.setState({bonded,escrow})
+        let allowance = await this.props.subscriber.zapToken.contract.methods.allowance(this.props.subscriber.subscriberOwner,this.props.subscriber.zapBondage.contract._address).call()
+        allowance = this.props.web3.utils.fromWei(allowance,"ether")
+         if(this._isMounted)
+            this.setState({bonded,escrow,allowance})
     }
 
     updateSubInfo = async()=>{
@@ -65,57 +96,58 @@ export class SubscribeItems  extends Component {
         console.log(sub)
         let remainBlocks = this.state.currentBlock- sub.preBlockEnd
         this.props.updateBlockEnd(remainBlocks)
-        this.setState({endBlock:sub.preBlockEnd,lastBlockEnd:sub.preBlockEnd})
+        if(this._isMounted)
+            this.setState({endBlock:sub.preBlockEnd,lastBlockEnd:sub.preBlockEnd})
     }
 
     approveZap=async()=>{
         if(this.state.approveAmount>0){
             let tx = await this.props.subscriber.approveToBond({provider:ORACLE.address,zapNum:this.props.web3.utils.toWei(this.state.approveAmount,"ether")})
-            let txid=tx.txHash
-            return this.setState((prev,prop)=>{
-                return {...prev,approveAmount:0}
-            })
+            await this.updateBondInfo()
         }
     }
     bondDots = async()=>{
         if(this.state.bondAmount>0){
-            let tx = await this.props.subscriber.bond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
-            return this.setState((prev,prop)=>{
-                return {...prev,bondAmount:0}
-            })
+            try{
+                let tx = await this.props.subscriber.bond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
+                await this.updateBondInfo()
+            }catch(error){
+                if(this._isMounted){
+                    this.setState({error})
+                }
+            }
         }
     }
 
     unBond = async()=>{
         if(this.state.bondAmount>0){
             let tx = await this.props.subscriber.unBond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
-            return this.setState((prev,prop)=>{
-                return {...prev,bondAmount:0}
-            })
+            await this.updateBondInfo()
         }
     }
 
 
     subscribeBlock=async()=>{
-        if(this.state.subscribeAmount>0){
+        if(this.state.escrow>0){
+            this.setState({error:"Need to unsubscribe before subscribe again"})
+        }
+        else if(this.state.subscribeAmount>0){
             // let dots = await this.props.subscriber.zapArbiter.contract.methods.endSubscriptionSubscriber(ORACLE.address,this.props.web3.utils.toHex(this.props.endpoint)).send({from:this.props.subscriber.subscriberOwner,gas:6000000})
             // console.log("DOTS ",dots)
             console.log({provider:ORACLE.address,endpoint:this.props.endpoint,endpointParams:[],dots:this.state.subscribeAmount},this.props.subscriber.subscriberOwner)
             let tx=await this.props.subscriber.subscribe({provider:ORACLE.address,endpoint:this.props.endpoint,endpointParams:[],dots:this.state.subscribeAmount})
-            return this.setState((prev,prop)=>{
-                return {...prev,subscribeAmount:0}
-            })
+            await this.updateSubInfo()
         }
     }
 
     unSubscribe=async()=>{
         if(this.state.escrow>0){
-            // let dots = await this.props.subscriber.zapArbiter.contract.methods.endSubscriptionSubscriber(ORACLE.address,this.props.web3.utils.toHex(this.props.endpoint)).send({from:this.props.subscriber.subscriberOwner,gas:6000000})
             // console.log("DOTS ",dots)
             let tx=await this.props.subscriber.zapArbiter.endSubscriptionSubscriber({provider:ORACLE.address,endpoint:this.props.endpoint,endpointParams:[],from:this.props.subscriber.subscriberOwner})
-            return this.setState((prev,prop)=>{
-                return {...prev,subscribeAmount:0}
-            })
+            await this.updateSubInfo()
+        }
+        else{
+            this.setState({error:"No escrow dots to unsusbcribe"})
         }
     }
 
@@ -123,11 +155,19 @@ export class SubscribeItems  extends Component {
         this.setState({[event.target.name]:event.target.value})
     }
 
+    resetError(){
+        this.setState({error:null})
+    }
+
     render(){
 
         let remainBlock=0
+        let error=(<p/>)
         if(this.state.currentBlock>0){
             let remainBlock = this.state.endBlock - this.state.currentBlock
+        }
+        if(this.state.error){
+            error = (<Message negative header="Error" content={this.state.error} onDismiss={this.resetError}/>)
         }
 
         return (
@@ -164,6 +204,7 @@ export class SubscribeItems  extends Component {
                 </Item.Content>
             </Item>
           </Item.Group>
+          {error}
           </Grid.Row>
           <Grid.Row>
             <Item.Group fluid vertical >
