@@ -93,8 +93,10 @@ export class SubscribeItems  extends Component {
 
     updateSubInfo = async()=>{
         let sub = await this.props.subscriber.zapArbiter.getSubscription({provider:ORACLE.address,endpoint:this.props.endpoint,subscriber:this.props.subscriber.subscriberOwner})
-        console.log(sub)
-        let remainBlocks = this.state.currentBlock- sub.preBlockEnd
+        let currentBlock = await this.props.web3.eth.getBlockNumber()
+        console.log("currentBlock", currentBlock)
+        let remainBlocks = sub.preBlockEnd - currentBlock
+        remainBlocks = remainBlocks>0 ? remainBlocks : 0
         this.props.updateBlockEnd(remainBlocks)
         if(this._isMounted)
             this.setState({endBlock:sub.preBlockEnd,lastBlockEnd:sub.preBlockEnd})
@@ -214,7 +216,7 @@ export class SubscribeItems  extends Component {
                       <Statistic size='tiny' label='Allowance' value={this.state.allowance||0}/>
                       <Statistic size='tiny' label='Bound Dots' value={this.state.bonded}/>
                       <Statistic size='tiny' label='Escrow' value={this.state.escrow}/>
-                      <Statistic size='tiny' label='Remaining Blocks' value={remainBlock}/>
+                      <Statistic size='tiny' label='Remaining Blocks' value={this.props.blocks}/>
                       <Statistic size='tiny' label='Last Block End' value={this.state.lastBlockEnd}/>
                 </Statistic.Group>
                 </Item.Content>

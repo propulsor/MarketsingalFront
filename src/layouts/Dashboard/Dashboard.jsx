@@ -118,6 +118,7 @@ class Dashboard extends Component {
   }
 
   updateBlockEnd = (remainBlocks)=>{
+      console.log("remain block",remainBlocks)
       this.setState({remainBlocks})
   }
 
@@ -133,28 +134,20 @@ class Dashboard extends Component {
          )
      }
      else{
-         if(this.state.remainBlocks>0){
-             this.getToken()
-             return (
-                 <Dimmer>
-                 <Loader>Signing to websocket auth... </Loader>
-                 </Dimmer>
-             )
-         }
-         else{
-            return (
-              <div className="wrapper">
-                {/*<NotificationSystem ref="notificationSystem" style={style} />*/}
-                <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>
-                <div id="main-panel" className="main-panel" ref="mainPanel">
-                  <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
-                 <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd}/>
-                 <Divider hidden section />
-                 <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
-                </div>
-              </div>
-            );
-        }
+
+        return (
+          <div className="wrapper">
+            {/*<NotificationSystem ref="notificationSystem" style={style} />*/}
+            <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>
+            <div id="main-panel" className="main-panel" ref="mainPanel">
+              <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
+             <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks}/>
+             <Divider hidden section />
+             <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
+            </div>
+          </div>
+        );
+
     }
   }
 }

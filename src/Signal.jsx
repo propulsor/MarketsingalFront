@@ -188,7 +188,8 @@ export default class Signal extends React.Component{
                          subscriber={this.state.subscriber}
                          endpoint={this.state.currentEndpoint}
                          web3={this.web3}
-                         updateBlockEnd={this.updateBlockEnd}/>
+                         updateBlockEnd={this.updateBlockEnd}
+                         blocks={this.props.blocks}/>
                          </Segment>
 
                     </Segment>
