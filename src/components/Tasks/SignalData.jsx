@@ -136,6 +136,9 @@ export class SignalData  extends Component {
                     status="Unauthorized, no active subscription found"
                     button = (<Button color="orange" content="Retry"  onClick={this.retryClick} />)
                 }
+                else{
+                    status="Authenticated"
+                }
             }
         }
             return (
