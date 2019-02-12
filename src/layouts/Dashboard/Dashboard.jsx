@@ -133,7 +133,7 @@ class Dashboard extends Component {
          )
      }
      else{
-         if(this.remainBlocks>0){
+         if(this.state.remainBlocks>0){
              this.getToken()
              return (
                  <Dimmer>
@@ -150,7 +150,7 @@ class Dashboard extends Component {
                   <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
                  <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd}/>
                  <Divider hidden section />
-                 <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.remainBlocks} getToken={this.getToken}/>
+                 <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
                 </div>
               </div>
             );
