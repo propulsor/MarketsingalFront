@@ -30,7 +30,8 @@ class Dashboard extends Component {
       endpoints:null,
       currentEndpoint:null,
       remainBlocks:0,
-      token:null
+      token:null,
+      endpointTokens:{}
     };
 
 
@@ -82,8 +83,10 @@ class Dashboard extends Component {
   getToken = async()=>{
 
       let token = await this.props.web3.eth.personal.sign(this.state.currentEndpoint,this.state.user)
-      console.log("TOKEN : ",token)
-      this.setState({token})
+      console.log(token)
+      let endpointTokens = this.state.endpointTokens
+      endpointTokens[this.state.currentEndpoint]=token
+      this.setState({token,endpointTokens})
   }
   getProviderAsync = async()=>{
     let title;
@@ -147,7 +150,7 @@ class Dashboard extends Component {
                   <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
                  <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd}/>
                  <Divider hidden section />
-                 <SignalData web3={this.props.web3} user={this.state.user} token={this.state.token} endpoint={this.state.currentEndpoint} blocks={this.remainBlocks} getToken={this.getToken}/>
+                 <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.remainBlocks} getToken={this.getToken}/>
                 </div>
               </div>
             );

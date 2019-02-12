@@ -1,8 +1,8 @@
 import React,{Component} from 'react'
-import {Message, Segment,Table,Label,Button,Dimmer,Loader} from 'semantic-ui-react'
+import {Message, Segment,Table,Label,Button,Dimmer,Loader,Grid} from 'semantic-ui-react'
 import {ORACLE} from "../../config"
 import {ZapSubscriber} from  "@zapjs/subscriber"
-const io= require("socket.io-client");
+import io from "socket.io-client";
 
 
 export class SignalData  extends Component {
@@ -34,7 +34,7 @@ export class SignalData  extends Component {
         )
     }
     startSocket=()=>{
-        let socket = io(ORACLE.URL,{autoConnect:false})
+        let socket = io(ORACLE.URL,{path:"/ws/socket.io/",secure:true})
         console.log("SOCKET", socket)
         socket.on("connect",this.authenticate)
         socket.on("authenticated",this.successAuth)
@@ -107,7 +107,7 @@ export class SignalData  extends Component {
         let status,button
         if(!this.props.token){
             status="Not connected"
-            button = (<Button  content="Connect" onClick={this.props.getToken} label={status}/>)
+            button = (<Button size='big' color="olive"  content="Connect" onClick={this.props.getToken} />)
         }
         else{
             if(!this.state.socket){
@@ -117,15 +117,21 @@ export class SignalData  extends Component {
             }
             else{
                 if(!this.state.auth){
-                    status="Unauthorized"
-                    button = (<Button content="Retry" onClick={this.retryClick} label={status}/>)
+                    status="Unauthorized, no active subscription found"
+                    button = (<Button color="orange" content="Retry"  onClick={this.retryClick} />)
                 }
             }
         }
             return (
                 <Segment>
-                {button}
+                <Grid>
+                    <Grid.Column textAlign="center">
+                        {button}
+                    </Grid.Column>
+                </Grid>
+
                 <Table compact fixed padded class="responsive" attached>
+                <Label  ribbon>{status}</Label>
                 <Table.Header>
                   <Table.Row>
                     <Table.HeaderCell>PAIR</Table.HeaderCell>
