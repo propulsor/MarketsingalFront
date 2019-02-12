@@ -1,5 +1,5 @@
 import React,{Component} from 'react'
-import {Message, Segment,Table,Label,Button,Dimmer,Loader,Grid} from 'semantic-ui-react'
+import {Message, Segment,Table,Label,Button,Dimmer,Loader,Grid,Statistic,List} from 'semantic-ui-react'
 import {ORACLE} from "../../config"
 import {ZapSubscriber} from  "@zapjs/subscriber"
 import io from "socket.io-client";
@@ -66,13 +66,29 @@ export class SignalData  extends Component {
     streamData = (data)=>{
         let dataSet = this.state.dataSet
         data = data.split("|")
-        let row = (<Table.Row>
+        let cellColor
+        let changes = JSON.parse(data[2])
+        if(parseFloat(changes['priceChange'])<0){
+            cellColor= false
+        }
+        else{
+            cellColor= true
+        }
+        let row = (<Table.Row positive={cellColor} negative={!cellColor}>
             <Table.Cell>{data[0]}</Table.Cell>
             <Table.Cell>{data[1]}</Table.Cell>
-            <Table.Cell>{data[2]}</Table.Cell>
+            <Table.Cell>
+                {changes['priceChange']}
+            </Table.Cell>
+            <Table.Cell>
+                {changes['tradesChange']}
+            </Table.Cell>
+            <Table.Cell>
+                {changes['volumnChange']}
+            </Table.Cell>
             </Table.Row>
         )
-        if(dataSet.length>200){
+        if(dataSet.length>50){
             dataSet.pop()
         }
         dataSet.unshift(row)
@@ -112,6 +128,7 @@ export class SignalData  extends Component {
         else{
             if(!this.state.socket){
                 this.startSocket()
+                this.streamData('ETHBTC|BULL|{"trend":1,"tradesChange":20,"volumnChange":46.863,"priceChange":0.07}')
                 status ="Not Connected"
                 button=(<Dimmer><Loader> Connecting </Loader></Dimmer>)
             }
@@ -136,7 +153,9 @@ export class SignalData  extends Component {
                   <Table.Row>
                     <Table.HeaderCell>PAIR</Table.HeaderCell>
                     <Table.HeaderCell>TREND</Table.HeaderCell>
-                    <Table.HeaderCell>DATA</Table.HeaderCell>
+                    <Table.HeaderCell>Price %</Table.HeaderCell>
+                    <Table.HeaderCell>Trades Count %</Table.HeaderCell>
+                    <Table.HeaderCell>Volumn % </Table.HeaderCell>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
