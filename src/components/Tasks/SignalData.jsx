@@ -128,7 +128,6 @@ export class SignalData  extends Component {
         else{
             if(!this.state.socket){
                 this.startSocket()
-                this.streamData('ETHBTC|BULL|{"trend":1,"tradesChange":20,"volumnChange":46.863,"priceChange":0.07}')
                 status ="Not Connected"
                 button=(<Dimmer><Loader> Connecting </Loader></Dimmer>)
             }
