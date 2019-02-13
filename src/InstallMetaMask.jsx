@@ -7,7 +7,7 @@ export default class InstallMetamask extends React.Component{
         super(props);
     }
     render() {
-        if (!this.state.metamaskDetected) {
+        if (!this.props.metamaskDetected) {
             return (
                 <div>
                     <h1> Please install Metamask </h1>
@@ -26,8 +26,8 @@ export default class InstallMetamask extends React.Component{
                 </div>
             );
         }
-        if (!this.state.metamaskUnlocked) {
-            return <h1>Please unlock Metamask!</h1>;
+        else if (!this.props.metamaskUnlocked) {
+            return <h1>Please unlock Metamask and refresh the page</h1>;
         }
         return <h1>Please refresh the page</h1>;
     }

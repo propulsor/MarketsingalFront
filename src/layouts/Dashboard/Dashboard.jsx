@@ -11,7 +11,7 @@ import Signal from "Signal";
 import SignalData from "components/Tasks/SignalData"
 import {ORACLE} from "config"
 import {ZapProvider} from "@zapjs/provider";
-
+import InstallMetaMask from "InstallMetaMask"
 
 
 class Dashboard extends Component {
@@ -31,7 +31,8 @@ class Dashboard extends Component {
       currentEndpoint:null,
       remainBlocks:0,
       token:null,
-      endpointTokens:{}
+      endpointTokens:{},
+      metaMaskUnlocked:true
     };
 
 
@@ -94,19 +95,23 @@ class Dashboard extends Component {
     let pubkey = {}
     let addresses = await this.props.web3.eth.getAccounts()
     let user = addresses[0]
-    const provider = new ZapProvider(ORACLE.address,{
-      networkId:await this.props.web3.eth.net.getId(),
-      networkProvider: this.props.web3
-    })
+    if(!user)
+        return this.setState({metaMaskUnlocked:false})
+    else{
+        const provider = new ZapProvider(ORACLE.address,{
+          networkId:await this.props.web3.eth.net.getId(),
+          networkProvider: this.props.web3
+        })
 
-    title = await provider.getTitle()
-    pubkey = await provider.getPubkey()
-    let endpoints = await provider.zapRegistry.getProviderEndpoints(ORACLE.address)
-    let currentEndpoint = endpoints[0]
-    console.log("ENdpoints :" ,endpoints)
-    return this.setState((prev,props)=>{
-    return {...prev,provider,pubkey,title,endpoints,currentEndpoint,user}
-    })
+        title = await provider.getTitle()
+        pubkey = await provider.getPubkey()
+        let endpoints = await provider.zapRegistry.getProviderEndpoints(ORACLE.address)
+        let currentEndpoint = endpoints[0]
+        console.log("ENdpoints :" ,endpoints)
+        return this.setState((prev,props)=>{
+        return {...prev,provider,pubkey,title,endpoints,currentEndpoint,user}
+        })
+    }
 
   }
 
@@ -124,6 +129,9 @@ class Dashboard extends Component {
 
 
   render() {
+      if(!this.state.metaMaskUnlocked){
+          return <InstallMetaMask metamaskDetected={true} metamaskUnlocked={false}/>
+      }
       console.log("CURRENT ENDPOINT : ", this.state.currentEndpoint)
      if(!this.state.provider){
          this.getProviderAsync()

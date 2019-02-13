@@ -21,7 +21,7 @@ const App = () => {
     let web3
     // Detect if Web3 is found, if not, ask the user to install Metamask
     if (!window.web3 && !window.ethereum) {
-        return <InstallMetaMask />;
+        return <InstallMetaMask metamaskDetected={false}/>;
 
     }
     else {
