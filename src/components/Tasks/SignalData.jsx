@@ -123,7 +123,7 @@ export class SignalData  extends Component {
         let status,button
         if(!this.props.token){
             status="Not connected"
-            button = (<Button size='big' color="olive"  content="Connect" onClick={this.props.getToken} />)
+            button = (<Button color="olive"  content="Connect" onClick={this.props.getToken} />)
         }
         else{
             if(!this.state.socket){

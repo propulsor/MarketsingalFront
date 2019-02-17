@@ -1,5 +1,5 @@
 import React,{Component} from 'react'
-import { Item, Button, Popup, Input, Statistic,Segment, Grid,Message} from 'semantic-ui-react'
+import { List,Item, Button, Popup, Input, Statistic,Segment, Grid,Message} from 'semantic-ui-react'
 import {ORACLE} from "../../config"
 import {ZapSubscriber} from  "@zapjs/subscriber"
 import {ZapBondage} from "@zapjs/bondage"
@@ -111,8 +111,22 @@ export class SubscribeItems  extends Component {
     bondDots = async()=>{
         if(this.state.bondAmount>0){
             try{
-                let tx = await this.props.subscriber.bond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
-                await this.updateBondInfo()
+              let zapRequired = await this.props.subscriber.zapBondage.calcZapForDots({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
+              zapRequired = this.props.web3.utils.fromWei(zapRequired,"ether")
+              if(this.state.allowance<zapRequired){
+                this.setState({error:`Not enough Zap approved, Allowance required: ${zapRequired} ZAP `})
+              }
+              else{
+                let zapBalance = await this.props.subscriber.zapToken.balanceOf(this.props.subscriber.subscriberOwner)
+                zapBalance = this.props.web3.utils.fromWei(zapBalance,"ether")
+                if(zapBalance<zapRequired){
+                  this.setState({error:`Not enough Zap balance, require ${zapRequired} ZAP`})
+                }
+                else{
+                  let tx = await this.props.subscriber.bond({provider:ORACLE.address,endpoint:this.props.endpoint,dots:this.state.bondAmount})
+                  await this.updateBondInfo()
+                }
+              }
             }catch(error){
                 if(this._isMounted){
                     this.setState({error})
@@ -173,55 +187,64 @@ export class SubscribeItems  extends Component {
         }
 
         return (
-        <Grid  centered padded>
+        <Grid   padded>
 
-        <Grid.Row >
-        <Item.Group>
-            <Item>
+        <Grid.Row centered>
+        <List>
+          <List.Item>
+            <List horizontal>
+              <List.Item>
+                    <Input floated='left'  placeholder="0" value={this.state.approveAmount} name="approveAmount" onChange={this.inputChange} label={{basic:true, content:'zap'}} lablePosition='right'/>
 
-                <Item.Content >
-
-                    <Input placeholder="0" value={this.state.approveAmount} name="approveAmount" onChange={this.inputChange} label={{basic:true, content:'zap'}} lablePosition='right'/>
-                    <Button onClick={this.approveZap} color="olive" >Approve</Button>
-                </Item.Content>
-            </Item>
-            <Item>
-                <Item.Content>
+              </List.Item>
+              <List.Item>
+                <Button onClick={this.approveZap} color="olive" >Approve</Button>
+              </List.Item>
+            </List>
+            </List.Item>
+            <List.Item>
+                <List horizontal>
+                  <List.Item>
                     <Input placeholder="0" value={this.state.bondAmount} name="bondAmount" onChange={this.inputChange} label={{basic:true, content:'dots'}} lablePosition='right'/>
+                  </List.Item>
+                  <List.Item>
                     <Button.Group>
                     <Button onClick={this.bondDots} color="olive">Bond</Button>
                     <Button.Or/>
                     <Button onClick={this.unBond} color="orange">Unbond</Button>
                     </Button.Group>
-                </Item.Content>
-            </Item>
-            <Item>
-                <Item.Content>
-                    <Input placeholder="0" value={this.state.subscribeAmount} name="subscribeAmount" onChange={this.inputChange} label={{basic:true, content:'blocks'}} lablePosition='right'/>
+                  </List.Item>
+                </List>
+            </List.Item>
+            <List.Item>
+              <List horizontal>
+                <List.Item>
+                  <Input placeholder="0" value={this.state.subscribeAmount} name="subscribeAmount" onChange={this.inputChange} label={{basic:true, content:'blocks'}} lablePosition='right'/>
+                  </List.Item>
+                  <List.Item>
                     <Button.Group>
                     <Button onClick={this.subscribeBlock} color="olive">Subscribe</Button>
                     <Button.Or />
                     <Button onClick={this.unSubscribe} color="orange">UnSubscribe</Button>
                     </Button.Group>
-                </Item.Content>
-            </Item>
-          </Item.Group>
+                  </List.Item>
+                </List>
+            </List.Item>
+          </List>
           {error}
           </Grid.Row>
-          <Grid.Row>
-            <Item.Group fluid vertical >
-                <Item>
-                <Item.Content verticalAlign='top'>
-                <Statistic.Group>
-                      <Statistic size='tiny' label='Allowance' value={this.state.allowance||0}/>
-                      <Statistic size='tiny' label='Bound Dots' value={this.state.bonded}/>
-                      <Statistic size='tiny' label='Escrow' value={this.state.escrow}/>
-                      <Statistic size='tiny' label='Remaining Blocks' value={this.props.blocks}/>
-                      <Statistic size='tiny' label='Last Block End' value={this.state.lastBlockEnd}/>
+          <Grid.Row >
+            <List>
+                <List.Item>
+                <Statistic.Group   size="mini">
+                      <Statistic  label='Zap Allowance' value={this.state.allowance||0}/>
+                      <Statistic  label='Bound Dots' value={this.state.bonded}/>
+                      <Statistic label='Escrow Dots' value={this.state.escrow}/>
+                      <Statistic  label='Remaining Blocks' value={this.props.blocks}/>
+                      <Statistic  label='Last Block End' value={this.state.lastBlockEnd}/>
                 </Statistic.Group>
-                </Item.Content>
-                </Item>
-                </Item.Group>
+                </List.Item>
+                </List>
           </Grid.Row>
           </Grid>
       );

@@ -12,7 +12,7 @@ import SignalData from "components/Tasks/SignalData"
 import {ORACLE} from "config"
 import {ZapProvider} from "@zapjs/provider";
 import InstallMetaMask from "InstallMetaMask"
-
+import * as rp from "request-promise"
 
 class Dashboard extends Component {
   constructor(props) {
@@ -32,7 +32,8 @@ class Dashboard extends Component {
       remainBlocks:0,
       token:null,
       endpointTokens:{},
-      metaMaskUnlocked:true
+      metaMaskUnlocked:true,
+      endpointData:{}
     };
 
 
@@ -108,8 +109,32 @@ class Dashboard extends Component {
         let endpoints = await provider.zapRegistry.getProviderEndpoints(ORACLE.address)
         let currentEndpoint = endpoints[0]
         console.log("ENdpoints :" ,endpoints)
+        let ipfs={}, endpointData={}
+        let providerParams = await provider.getAllProviderParams()
+        if(providerParams.length>0){
+          for(let key of providerParams){
+            key= this.props.web3.utils.hexToUtf8(key)
+            let value = await provider.getProviderParam(key)
+            value=  this.props.web3.utils.hexToUtf8(value)
+            if(key.includes(".md")){
+              let endpoint = key.slice(0,-3)
+              if(!endpointData[endpoint])
+                endpointData[endpoint]={}
+              endpointData[endpoint].ipfs = await rp(value)
+            }
+          }
+        }
+
+        let params= []
+        for(let endpoint of endpoints){
+          let endpointParams = await provider.getEndpointParams(endpoint)
+          for(let item of endpointParams)
+            params.push(this.props.web3.utils.hexToUtf8(item))
+
+          endpointData[endpoint].params=params
+        }
         return this.setState((prev,props)=>{
-        return {...prev,provider,pubkey,title,endpoints,currentEndpoint,user}
+        return {...prev,provider,pubkey,title,endpoints,currentEndpoint,user,endpointData}
         })
     }
 
@@ -149,7 +174,7 @@ class Dashboard extends Component {
             <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>
             <div id="main-panel" className="main-panel" ref="mainPanel">
               <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
-             <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks}/>
+             <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
              <Divider hidden section />
              <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
             </div>

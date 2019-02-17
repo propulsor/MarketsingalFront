@@ -21,7 +21,8 @@ export default class ManageProvider extends React.Component {
     title:'',
     providerOwner:'',
     currentEndpoint:'',
-    activeMenuItem:''
+    activeMenuItem:'',
+    ipfs:{}
   }
 
   // private _pollingIntervalId: any;
@@ -67,8 +68,34 @@ export default class ManageProvider extends React.Component {
         endpoints[e].dotsIssued= await provider.getDotsIssued({endpoint:e})
       }
       let currentEndpoint = es[0]
+
+
+      let ipfs={}
+      let providerParams = await provider.getAllProviderParams()
+      if(providerParams.length>0){
+        for(let key of providerParams){
+          key= this.web3.utils.hexToUtf8(key)
+          let value = await zapProvider.getProviderParam(key)
+          value=  this.web3.utils.hexToUtf8(value)
+          console.log("key and value", key, value, currentEndpoint+".md")
+          if(key.includes(".md")){
+            let endpoint = keys.slice(0,-3)
+            ipfs[endpoint].ipfs = value
+            let endpointParams = await provider.getEndpointParams(endpoint)
+            let params= []
+            for(let item of endpointParams){
+              params.push(this.props.utils.hexToUtf8(item))
+            }
+            ipfs[endpoint].params=params
+          }
+        }
+      }
+
+
+
+
       return this.setState((prev,props)=>{
-        return {...prev,curve,init,provider,pubkey, title,providerOwner,endpoints,currentEndpoint}
+        return {...prev,curve,init,provider,pubkey, title,providerOwner,endpoints,currentEndpoint,ipfs}
       })
     }
     else{
