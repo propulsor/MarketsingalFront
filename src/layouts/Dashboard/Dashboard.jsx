@@ -5,7 +5,7 @@ import NotificationSystem from "react-notification-system";
 import Header from "components/Header/Header";
 import Footer from "components/Footer/Footer";
 import Sidebar from "components/Sidebar/Sidebar";
-import {Dimmer,Loader,Container,Divider} from "semantic-ui-react"
+import {Dimmer,Loader,Divider} from "semantic-ui-react"
 import { style } from "variables/Variables.jsx";
 import Signal from "Signal";
 import SignalData from "components/Tasks/SignalData"
@@ -14,6 +14,8 @@ import {ZapProvider} from "@zapjs/provider";
 import InstallMetaMask from "InstallMetaMask"
 import * as rp from "request-promise"
 import AppRouter from '../../routes/AppRouter'
+import { Row, Col } from 'react-bootstrap'
+
 
 class Dashboard extends Component {
   constructor(props) {
@@ -191,34 +193,26 @@ class Dashboard extends Component {
 
             <Router>
               <div>
-                <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>
+                {/* <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/> */}
 
-                <nav>
-                
-                    <div>
-                      <Link to='/about/'>About</Link>
+
+                <div class="container">
+                  <div class="row">
+                    <div class="col-2">
+                      <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>                    
                     </div>
-                    <div>
-                      <Link to='/how-to/'>How To</Link>
+                    <div class="col-10">
+                      <div id="main-panel" className="main-panel" ref="mainPanel">
+                        <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
+                        <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
+                        <Divider hidden section />
+                        <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
+                      </div>
                     </div>
-                </nav>
-                
-                
-                {/*
-                  this is the display section 
-                */}
-                <Route path='/about/' component={this.About} />
-                <Route path='/how-to/' component={this.HowTo} />
-
-
-
-
-                <div id="main-panel" className="main-panel" ref="mainPanel">
-                  <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
-                  <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
-                  <Divider hidden section />
-                  <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
+                    
+                  </div>
                 </div>
+     
               
               </div>
 
