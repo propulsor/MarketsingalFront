@@ -3,6 +3,8 @@ import { Navbar,Nav } from "react-bootstrap";
 import HeaderLinks from "./HeaderLinks.jsx";
 import {Modal,Button,Image,Message} from "semantic-ui-react"
 import dashboardRoutes from "routes/dashboard.jsx";
+import { Link } from "react-router-dom";
+
 
 class Header extends Component {
   constructor(props) {
@@ -43,8 +45,17 @@ class Header extends Component {
 
         
 
-
-          <HeaderLinks />
+        <nav>
+                
+            <div>
+              <Link to='/about/'>About</Link>
+            </div>
+            <div>
+              <Link to='/how-to/'>How To</Link>
+            </div>
+        </nav>
+          
+        <HeaderLinks />
           
 
       </Navbar>

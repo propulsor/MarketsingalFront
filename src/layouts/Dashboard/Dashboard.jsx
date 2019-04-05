@@ -24,6 +24,7 @@ class Dashboard extends Component {
     this.handleNotificationClick = this.handleNotificationClick.bind(this);
     this.updateEndpoint = this.updateEndpoint.bind(this)
     this.updateBlockEnd= this.updateBlockEnd.bind(this)
+    this.BinanceSignal = this.BinanceSignal.bind(this)
     this.state = {
       _notificationSystem: null,
       provider:null,
@@ -171,6 +172,13 @@ class Dashboard extends Component {
       return <h2 className='menu-item'>How To</h2>
     }
 
+  BinanceSignal() {
+    return <div id="main-panel" className="main-panel" >
+                        <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
+                        <Divider hidden section />
+                        <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
+                      </div>
+  }
 
   render() {
       if(!this.state.metaMaskUnlocked){
@@ -193,33 +201,24 @@ class Dashboard extends Component {
 
             <Router>
               <div>
-                {/* <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/> */}
-
-
                 <div class="container">
                   <div class="row">
                     <div class="col-2">
                       <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>                    
                     </div>
                     <div class="col-10">
-                      <div id="main-panel" className="main-panel" ref="mainPanel">
-                        <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
-                        <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
-                        <Divider hidden section />
-                        <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
+                      <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
+                      <div>
+                        <Route path='/about/' component={this.About} />
+                        <Route path='/how-to/' component={this.HowTo} />
+                        <Route path='/BinanceSignal/' component={this.BinanceSignal} />
+                        <Route path='/TrendSignals/' component={this.BinanceSignal} />
                       </div>
                     </div>
-                    
                   </div>
                 </div>
-     
-              
               </div>
-
-
             </Router>
-
-
           </div>
         );
 
