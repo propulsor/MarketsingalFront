@@ -33,17 +33,20 @@ class Header extends Component {
 
   render() {
     return (
-      <Navbar fluid  vertical>
-        <Navbar.Header>
+      <Navbar >
+        {/* <Navbar.Header>
         <p>Pubkey : {this.props.pubkey}</p>
         <p>Address : {this.props.address}</p>
 
           <Navbar.Toggle onClick={this.mobileSidebarToggle} />
-        </Navbar.Header>
-        <Navbar>
+        </Navbar.Header> */}
+
+        
+
 
           <HeaderLinks />
-        </Navbar>
+          
+
       </Navbar>
     );
   }

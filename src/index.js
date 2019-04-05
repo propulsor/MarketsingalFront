@@ -3,7 +3,6 @@ import {render} from 'react-dom';
 // import Accounts from './Accounts';
 import Dashboard from "./layouts/Dashboard/Dashboard.jsx";
 
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/css/animate.min.css";
 import "./assets/sass/light-bootstrap-dashboard.css?v=1.2.0";
