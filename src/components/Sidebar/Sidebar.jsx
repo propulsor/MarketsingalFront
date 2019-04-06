@@ -57,7 +57,6 @@ class Sidebar extends Component {
             <Menu inverted vertical size='massive' borderless fluid pointingtextAlign="center" secondary className='nav'>
           <Menu.Header as='h2'content="ENDPOINTS" textAlign="center" className='nav-link'/>
             {this.props.endpoints.map((e) => {
-              console.log('ahhh', e)
                 return (
                   <Link to={`/${e}`}>
                     <Menu.Item name={e} active={this.state.activeItem=={e}} onClick={()=>{this.props.updateEndpoint(e)}}  className='nav-link'/>

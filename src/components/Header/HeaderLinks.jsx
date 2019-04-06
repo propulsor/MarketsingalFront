@@ -13,9 +13,9 @@ class HeaderLinks extends Component {
     );
     return (
       <div>
-        <Nav>
+        {/* <Nav>
 
-        </Nav>
+        </Nav> */}
         <Nav pullRight>
           <NavItem eventKey={1} href="https://zap.org" target="_blank">
           <a
@@ -24,10 +24,10 @@ class HeaderLinks extends Component {
             target="_blank"
           >
             <div className="logo-img">
-              <img src={zapLogo} alt="logo_image" />
+              <img className='shrinked' src={zapLogo} alt="logo_image" />
             </div>
           </a>
-            Powered by ZAP.ORG
+            <a>Powered by ZAP.ORG</a>
           </NavItem>
 
 

@@ -1,0 +1,26 @@
+nav div {
+    display: inline-block;
+  }
+  
+.margin-space {
+    border: none;
+    margin: calc(2rem - .14285714em) 0 1rem;
+    padding: 10px 10px;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    font-weight: 700;
+    line-height: 1.28571429em;
+    text-transform: none;
+    color: rgba(0,0,0,.87);
+}
+
+.Header a:hover {
+color: grey;
+}
+
+.shrinked {
+    height: 50px
+}
+
+.shift-lower {
+    margin-top: 30px
+}

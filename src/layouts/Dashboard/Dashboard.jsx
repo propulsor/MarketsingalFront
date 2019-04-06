@@ -164,11 +164,11 @@ class Dashboard extends Component {
   }
 
   About() {
-    return <h2 className='menu-item'>About</h2>
+    return <h2 className='menu-link'>About</h2>
   }
   
   HowTo() {
-      return <h2 className='menu-item'>How To</h2>
+      return <h2 className='menu-link'>How To</h2>
     }
 
   getSignal() {
@@ -195,7 +195,7 @@ class Dashboard extends Component {
      else{
 
         return (
-          <div className="">
+          <div className="Dashboard">
             {/*<NotificationSystem ref="notificationSystem" style={style} />*/}
 
             <Router>

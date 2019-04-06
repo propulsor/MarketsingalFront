@@ -4,6 +4,7 @@ import HeaderLinks from "./HeaderLinks.jsx";
 import {Modal,Button,Image,Message} from "semantic-ui-react"
 import dashboardRoutes from "routes/dashboard.jsx";
 import { Link } from "react-router-dom";
+import './Header.css'
 
 
 class Header extends Component {
@@ -35,7 +36,7 @@ class Header extends Component {
 
   render() {
     return (
-      <Navbar >
+      <Navbar className='Header'>
         {/* <Navbar.Header>
         <p>Pubkey : {this.props.pubkey}</p>
         <p>Address : {this.props.address}</p>
@@ -45,13 +46,13 @@ class Header extends Component {
 
         
 
-        <nav>
+        <nav className='shift-lower'>
                 
             <div>
-              <Link to='/about/'>About</Link>
+              <Link className='margin-space' to='/about/'>About</Link>
             </div>
             <div>
-              <Link to='/how-to/'>How To</Link>
+              <Link className='margin-space' to='/how-to/'>How To</Link>
             </div>
         </nav>
           
