@@ -13,7 +13,6 @@ import {ORACLE} from "config"
 import {ZapProvider} from "@zapjs/provider";
 import InstallMetaMask from "InstallMetaMask"
 import * as rp from "request-promise"
-import AppRouter from '../../routes/AppRouter'
 import { Row, Col } from 'react-bootstrap'
 
 
@@ -24,7 +23,7 @@ class Dashboard extends Component {
     this.handleNotificationClick = this.handleNotificationClick.bind(this);
     this.updateEndpoint = this.updateEndpoint.bind(this)
     this.updateBlockEnd= this.updateBlockEnd.bind(this)
-    this.BinanceSignal = this.BinanceSignal.bind(this)
+    this.getSignal = this.getSignal.bind(this)
     this.state = {
       _notificationSystem: null,
       provider:null,
@@ -172,8 +171,8 @@ class Dashboard extends Component {
       return <h2 className='menu-item'>How To</h2>
     }
 
-  BinanceSignal() {
-    return <div id="main-panel" className="main-panel" >
+  getSignal() {
+    return <div id="main-panel" className="" >
                         <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
                         <Divider hidden section />
                         <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
@@ -201,7 +200,7 @@ class Dashboard extends Component {
 
             <Router>
               <div>
-                <div class="container">
+                <div class="container-fluid">
                   <div class="row">
                     <div class="col-2">
                       <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>                    
@@ -209,10 +208,11 @@ class Dashboard extends Component {
                     <div class="col-10">
                       <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
                       <div>
+                        <Route path='/' exact component={this.getSignal} />
                         <Route path='/about/' component={this.About} />
                         <Route path='/how-to/' component={this.HowTo} />
-                        <Route path='/BinanceSignal/' component={this.BinanceSignal} />
-                        <Route path='/TrendSignals/' component={this.BinanceSignal} />
+                        <Route path='/BinanceSignal/' component={this.getSignal} />
+                        <Route path='/TrendSignals/' component={this.getSignal} />
                       </div>
                     </div>
                   </div>
