@@ -1,0 +1,8 @@
+.about {
+    font-family: arias;
+    margin: 20px;
+}
+
+h4:first-child {
+    margin-top: 20px
+}

@@ -14,7 +14,9 @@ import {ZapProvider} from "@zapjs/provider";
 import InstallMetaMask from "InstallMetaMask"
 import * as rp from "request-promise"
 import { Row, Col } from 'react-bootstrap'
-
+import './Dashboard.css'
+import HowTo from 'components/HowTo/HowTo.jsx'
+import About from 'components/About/About.jsx'
 
 class Dashboard extends Component {
   constructor(props) {
@@ -163,13 +165,6 @@ class Dashboard extends Component {
       this.setState({remainBlocks})
   }
 
-  About() {
-    return <h2 className='menu-link'>About</h2>
-  }
-  
-  HowTo() {
-      return <h2 className='menu-link'>How To</h2>
-    }
 
   getSignal() {
     return <div id="main-panel" className="" >
@@ -209,8 +204,8 @@ class Dashboard extends Component {
                       <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
                       <div>
                         <Route path='/' exact component={this.getSignal} />
-                        <Route path='/about/' component={this.About} />
-                        <Route path='/how-to/' component={this.HowTo} />
+                        <Route path='/about/' component={About} />
+                        <Route path='/how-to/' component={HowTo} />
                         <Route path='/BinanceSignal/' component={this.getSignal} />
                         <Route path='/TrendSignals/' component={this.getSignal} />
                       </div>
