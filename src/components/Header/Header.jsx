@@ -3,6 +3,9 @@ import { Navbar,Nav } from "react-bootstrap";
 import HeaderLinks from "./HeaderLinks.jsx";
 import {Modal,Button,Image,Message} from "semantic-ui-react"
 import dashboardRoutes from "routes/dashboard.jsx";
+import { Link } from "react-router-dom";
+import './Header.css'
+
 
 class Header extends Component {
   constructor(props) {
@@ -33,17 +36,29 @@ class Header extends Component {
 
   render() {
     return (
-      <Navbar fluid  vertical>
-        <Navbar.Header>
+      <Navbar className='Header'>
+        {/* <Navbar.Header>
         <p>Pubkey : {this.props.pubkey}</p>
         <p>Address : {this.props.address}</p>
 
           <Navbar.Toggle onClick={this.mobileSidebarToggle} />
-        </Navbar.Header>
-        <Navbar>
+        </Navbar.Header> */}
 
-          <HeaderLinks />
-        </Navbar>
+        
+
+        <nav className='shift-lower'>
+                
+            <div>
+              <Link className='margin-space' to='/about/'>About</Link>
+            </div>
+            <div>
+              <Link className='margin-space' to='/how-to/'>How To</Link>
+            </div>
+        </nav>
+          
+        <HeaderLinks />
+          
+
       </Navbar>
     );
   }

@@ -3,7 +3,6 @@ import {render} from 'react-dom';
 // import Accounts from './Accounts';
 import Dashboard from "./layouts/Dashboard/Dashboard.jsx";
 
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/css/animate.min.css";
 import "./assets/sass/light-bootstrap-dashboard.css?v=1.2.0";
@@ -11,7 +10,6 @@ import "./assets/css/demo.css";
 import "./assets/css/pe-icon-7-stroke.css";
 import "semantic-ui-css/semantic.min.css";
 
-import './index.css';
 import InstallMetaMask from "./InstallMetaMask"
 import registerServiceWorker from './registerServiceWorker';
 import * as Web3 from "web3"

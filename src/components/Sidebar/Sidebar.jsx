@@ -5,6 +5,7 @@ import HeaderLinks from "../Header/HeaderLinks.jsx";
 import {Menu, Segment} from "semantic-ui-react"
 import imagine from "assets/img/sidebar-5.jpg";
 import logo from "assets/img/signal.png";
+import { Link } from "react-router-dom";
 
 // import dashboardRoutes from "routes/dashboard.jsx";
 
@@ -57,7 +58,11 @@ class Sidebar extends Component {
           <Menu.Header as='h2'content="ENDPOINTS" textAlign="center" className='nav-link'/>
             {this.props.endpoints.map((e) => {
                 return (
-                  <Menu.Item name={e} active={this.state.activeItem=={e}} onClick={()=>{this.props.updateEndpoint(e)}}  className='nav-link'/>
+                  <Link to={`/${e}`}>
+                    <Menu.Item name={e} active={this.state.activeItem=={e}} onClick={()=>{this.props.updateEndpoint(e)}}  className='nav-link'/>
+                  </Link>
+                  // <Link to='/{e}/'>{e}</Link>
+                  
                 );
             })}
           </Menu>

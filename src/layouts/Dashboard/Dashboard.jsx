@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { Route, Switch, Redirect } from "react-router-dom";
+import { Switch, Redirect, BrowserRouter as Router, Route, Link } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
 
 import Header from "components/Header/Header";
 import Footer from "components/Footer/Footer";
 import Sidebar from "components/Sidebar/Sidebar";
-import {Dimmer,Loader,Container,Divider} from "semantic-ui-react"
+import {Dimmer,Loader,Divider} from "semantic-ui-react"
 import { style } from "variables/Variables.jsx";
 import Signal from "Signal";
 import SignalData from "components/Tasks/SignalData"
@@ -13,6 +13,10 @@ import {ORACLE} from "config"
 import {ZapProvider} from "@zapjs/provider";
 import InstallMetaMask from "InstallMetaMask"
 import * as rp from "request-promise"
+import { Row, Col } from 'react-bootstrap'
+import './Dashboard.css'
+import HowTo from 'components/HowTo/HowTo.jsx'
+import About from 'components/About/About.jsx'
 
 class Dashboard extends Component {
   constructor(props) {
@@ -21,6 +25,7 @@ class Dashboard extends Component {
     this.handleNotificationClick = this.handleNotificationClick.bind(this);
     this.updateEndpoint = this.updateEndpoint.bind(this)
     this.updateBlockEnd= this.updateBlockEnd.bind(this)
+    this.getSignal = this.getSignal.bind(this)
     this.state = {
       _notificationSystem: null,
       provider:null,
@@ -128,6 +133,14 @@ class Dashboard extends Component {
         let params= []
         for(let endpoint of endpoints){
           let endpointParams = await provider.getEndpointParams(endpoint)
+
+          console.log('endpoint', endpoint)
+          console.log('endpointParams', endpointParams)
+
+          if(endpoint.toLowerCase()=="bittrex"){
+            continue
+          }
+
           for(let item of endpointParams)
             params.push(this.props.web3.utils.hexToUtf8(item))
 
@@ -153,6 +166,14 @@ class Dashboard extends Component {
   }
 
 
+  getSignal() {
+    return <div id="main-panel" className="" >
+                        <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
+                        <Divider hidden section />
+                        <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
+                      </div>
+  }
+
   render() {
       if(!this.state.metaMaskUnlocked){
           return <InstallMetaMask metamaskDetected={true} metamaskUnlocked={false}/>
@@ -169,15 +190,30 @@ class Dashboard extends Component {
      else{
 
         return (
-          <div className="wrapper">
+          <div className="Dashboard">
             {/*<NotificationSystem ref="notificationSystem" style={style} />*/}
-            <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>
-            <div id="main-panel" className="main-panel" ref="mainPanel">
-              <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
-             <Signal endpoint={this.state.currentEndpoint} web3={this.props.web3} updateBlockEnd={this.updateBlockEnd} blocks={this.state.remainBlocks} endpointData={this.state.endpointData}/>
-             <Divider hidden section />
-             <SignalData web3={this.props.web3} user={this.state.user} token={this.state.endpointTokens[this.state.currentEndpoint]} endpoint={this.state.currentEndpoint} blocks={this.state.remainBlocks} getToken={this.getToken}/>
-            </div>
+
+            <Router>
+              <div>
+                <div class="container-fluid">
+                  <div class="row">
+                    <div class="col-2">
+                      <Sidebar {...this.props} endpoints={this.state.endpoints} updateEndpoint={this.updateEndpoint}/>                    
+                    </div>
+                    <div class="col-10">
+                      <Header title={this.state.title} pubkey={this.state.pubkey} address={ORACLE.address}  />
+                      <div>
+                        <Route path='/' exact component={this.getSignal} />
+                        <Route path='/about/' component={About} />
+                        <Route path='/how-to/' component={HowTo} />
+                        <Route path='/BinanceSignal/' component={this.getSignal} />
+                        <Route path='/TrendSignals/' component={this.getSignal} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Router>
           </div>
         );
 

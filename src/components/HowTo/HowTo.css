@@ -1,0 +1,24 @@
+.how-to {
+    margin: 60px;
+}
+
+.how-to h3 {
+    font-size: 16px;
+    line-height: 1.625;
+    font-weight: 400;
+    font-family: Content-font, Roboto, sans-serif; 
+}
+
+.how-to h4 {
+    margin: 20px;
+    font-size: 16px;
+    line-height: 1.625;
+    font-weight: 400;
+    font-family: Content-font, Roboto, sans-serif; 
+}
+
+.how-to img {
+    padding-left: 40px;
+    height: 500px;
+    width: 900px;
+}
